@@ -13,7 +13,7 @@ app.use(
 	));
 	
 // === Post Request to '/post' === //
-app.post(	'/post',
+app.post(	'/',
 			function( req , res )
 			{
 				// Log the Request Body
