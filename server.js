@@ -1,40 +1,28 @@
-// === Include the Necessary Externals === //
-var express     =  require( 'express' );
-var http        =  require( 'http' );
-var bodyParser  =  require( 'body-parser' );
+var server = require("http").createServer();
 
-// === Prepare the App === //
-var app  =  express( );
-app.use(
-	bodyParser.text(
-		{
-			type:	function( req ) { return 'text'; }
-		}
-	));
-	
-// === Post Request to '/post' === //
-app.post(	'/',
-			function( req , res )
-			{
-				// Log the Request Body
-				console.log( req.body );
-				
-				// Response Status
-				res  =  res.status( 200 );
-				
-				// Verify that the Request has a content-type header
-				if ( req.get( 'Content-Type' ) ) 
-				{
-					// Log the Request Content-Type
-					console.log( 'Content-Type: ' + req.get( 'Content-Type' ) );
-					
-					// Response Type
-					res  =  res.type( req.get( 'Content-Type' ) );
-				}
-				
-				// Send the Response to the Client (Response Echoes Request)
-				res.send( req.body );
-			});
-			
-// === Create the Server and Begin Listening For Requests on Port === //
-http.createServer( app ).listen( 8080 );
+server.on("request", (request, response) => {
+    var body = [];
+    request.on("data", chunk => {
+        body.push(chunk);
+    });
+    request
+        .on("end", () => {
+            let bodyString = body.concat().toString();
+            console.log(bodyString);
+            response.end(bodyString);
+        })
+        .on("error", () => {
+            response.statusCode = 400;
+            response.end();
+        });
+    response.on("error", err => {
+        console.error(err);
+    });
+});
+server.listen(process.env.PORT || 8008, () => {
+    console.log("Server listening at 8008");
+});
+
+module.exports = server; // for testing
+
+//curl -d "echo" -H "Content-Type: text" -X POST http://localhost:8008
